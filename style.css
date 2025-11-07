@@ -1,0 +1,587 @@
+/*
+ * Base styles for the Yojo Games site.
+ * Inspired by Staple Games’ clean, light aesthetic but tailored
+ * with a playful accent colour and simplified layout.
+ */
+
+/* CSS Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* Staple Games colour palette */
+    --black: #111111;
+    --white: #ffffff;
+    --yellow: #ffd95a;
+    --purple: #a978e9;
+    --border-width: 2px;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--white);
+    color: var(--black);
+    line-height: 1.6;
+}
+
+/* Use Poppins for headings to mirror Staple Games */
+h1, h2, h3 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    color: var(--black);
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Navigation bar */
+.navbar {
+    background: var(--white);
+    border-bottom: var(--border-width) solid var(--black);
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.navbar .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0.5rem;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.logo span {
+    color: var(--yellow);
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.nav-links a {
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+/* Nav links change to yellow on hover */
+.nav-links a:hover {
+    color: var(--yellow);
+}
+
+/* Hamburger menu for mobile */
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.menu-toggle span {
+    width: 25px;
+    height: 3px;
+    background: var(--black);
+}
+
+/* Responsive navigation */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        right: 20px;
+        background: #fff;
+        border: 1px solid #ddd;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+        border-radius: 8px;
+        z-index: 999;
+    }
+
+    .nav-links.open {
+        display: flex;
+    }
+
+    .menu-toggle {
+        display: flex;
+    }
+}
+
+/* Hero section */
+.hero {
+    background: var(--white);
+    padding: 4rem 0;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+.hero p {
+    font-size: 1.1rem;
+    max-width: 700px;
+    margin: 0 auto 2rem;
+    color: var(--black);
+    opacity: 0.8;
+}
+
+.hero-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    border: var(--border-width) solid var(--black);
+    box-shadow: 0 3px 0 var(--black);
+}
+
+/* Primary buttons use a yellow fill with black text */
+.primary-btn {
+    background: var(--yellow);
+    color: var(--black);
+}
+
+/* Secondary buttons can remain outlined and white if needed */
+.secondary-btn {
+    background: var(--white);
+    color: var(--black);
+    border: var(--border-width) solid var(--black);
+}
+
+.primary-btn:hover,
+.secondary-btn:hover {
+    background: var(--yellow);
+    color: var(--black);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--black);
+}
+
+/* Stats section */
+/* Statistics section */
+.stats {
+    background: var(--white);
+    border-top: var(--border-width) solid var(--black);
+    border-bottom: var(--border-width) solid var(--black);
+    padding: 2rem 0;
+}
+
+/* Use flexbox on the container to align individual stats horizontally */
+.stats .container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.stat h2 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: var(--black);
+}
+
+.stat p {
+    color: var(--black);
+    font-weight: 500;
+}
+
+/* Games section */
+.games-section {
+    padding: 4rem 0;
+}
+
+.games-section h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.games-section p {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #555;
+}
+
+.filters {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.filter-btn {
+    padding: 0.4rem 0.9rem;
+    margin: 0 0.25rem;
+    background: var(--white);
+    color: var(--black);
+    border: var(--border-width) solid var(--black);
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+    box-shadow: 0 2px 0 var(--black);
+    transition: background 0.2s, color 0.2s;
+}
+
+/* Active filter button uses yellow fill */
+.filter-btn.active,
+.filter-btn:hover {
+    background: var(--yellow);
+    color: var(--black);
+}
+
+.games-grid {
+    /* Use flexbox for consistent card sizes regardless of number of items */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center;
+}
+
+.game-card {
+    /* Ensure consistent width for each card */
+    flex: 0 0 250px;
+    display: flex;
+    flex-direction: column;
+    background: var(--white);
+    border: var(--border-width) solid var(--black);
+    border-radius: 20px;
+    box-shadow: 0 4px 0 var(--black);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Scale cards slightly and lift the shadow on hover */
+.game-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 0 var(--black);
+}
+
+.game-image {
+    position: relative;
+    /* Increase the height of card images to show more of the artwork and
+       prevent the appearance of overly zoomed‑in thumbnails. */
+    height: 180px;
+    width: 100%;
+    background: #f7f7f7;
+    border-bottom: var(--border-width) solid var(--black);
+    /* Center the image inside this container and provide some padding
+       so the full artwork is visible without being cropped. Flexbox
+       allows the image to be aligned both vertically and horizontally. */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+}
+
+/* Ensure any image placed inside the game-image container fills the
+   entire area and maintains its aspect ratio. Using object-fit: cover
+   will ensure the image scales to cover without distortion. */
+.game-image img {
+    /* Allow the image to scale down within the container while
+       preserving aspect ratio. The max-* properties ensure the image
+       never overflows the padded area. */
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+    /* Match the card's rounded top corners */
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+}
+
+/* Placeholder coloured backgrounds for different categories */
+/* Updated category backgrounds to more vibrant, playful gradients */
+/* Remove category-specific gradients for a simpler, cleaner look */
+.game-image.puzzle,
+.game-image.casual,
+.game-image.strategy {
+    background: #f7f7f7;
+}
+
+.game-image .category {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--yellow);
+    color: var(--black);
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 4px;
+    border: var(--border-width) solid var(--black);
+    text-transform: uppercase;
+}
+
+.game-content {
+    padding: 1rem;
+}
+
+.game-content h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.game-content p {
+    color: #777;
+    font-size: 0.9rem;
+}
+
+/* Publish section */
+.publish-section {
+    /* Use Staple Games‑inspired purple banner for publish section */
+    background: var(--purple);
+    color: var(--white);
+    text-align: center;
+    padding: 4rem 0;
+    border-top: var(--border-width) solid var(--black);
+    border-bottom: var(--border-width) solid var(--black);
+}
+
+.publish-section h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    color: var(--yellow);
+}
+
+.publish-section p {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    color: var(--white);
+}
+
+.publish-section .small {
+    font-size: 0.85rem;
+    opacity: 0.85;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+.publish-section .btn {
+    background: var(--yellow);
+    color: var(--black);
+    padding: 0.75rem 2rem;
+    border-radius: 12px;
+    font-weight: 700;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    display: inline-block;
+    border: var(--border-width) solid var(--black);
+    box-shadow: 0 3px 0 var(--black);
+}
+
+.publish-section .btn:hover {
+    background: var(--yellow);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--black);
+}
+
+/* Footer */
+.footer {
+    background: var(--purple);
+    color: var(--white);
+    padding: 2rem 0;
+    font-size: 0.9rem;
+    border-top: var(--border-width) solid var(--black);
+}
+
+/* Apply a universal scale effect on hover to all buttons for extra playfulness */
+.btn:hover {
+    transform: scale(1.05);
+}
+
+.footer .container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.5rem;
+}
+
+.footer-brand h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+.footer-brand p {
+    max-width: 300px;
+    color: #ccc;
+}
+
+.footer-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.footer-links a {
+    /* Use a subtle grey for inactive footer links */
+    color: #000000;
+    transition: color 0.3s;
+}
+
+/* On hover, footer links adopt the yellow accent */
+.footer-links a:hover {
+    color: var(--yellow);
+}
+
+.footer p {
+    width: 100%;
+    text-align: center;
+    margin-top: 1.5rem;
+    color: #000000;
+    font-size: 0.75rem;
+}
+
+/* Featured Game section */
+.featured-section {
+    padding: 4rem 0;
+    text-align: center;
+    background: var(--white);
+    border-top: var(--border-width) solid var(--black);
+    border-bottom: var(--border-width) solid var(--black);
+}
+
+.featured-section h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+/* Featured card styles mirror game cards but larger */
+.featured-card {
+    max-width: 600px;
+    margin: 2rem auto 0;
+    background: var(--white);
+    border: var(--border-width) solid var(--black);
+    border-radius: 20px;
+    box-shadow: 0 4px 0 var(--black);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.featured-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 0 var(--black);
+}
+
+.featured-image {
+    /* Increase the height of the featured image so that more of the
+       artwork is visible without cropping too aggressively. */
+    height: 350px;
+    background: #f7f7f7;
+    border-bottom: var(--border-width) solid var(--black);
+    position: relative;
+    /* Center the featured image and add generous padding to ensure
+       the entire artwork is visible without cropping. Flexbox is used
+       to center the image horizontally and vertically. */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+/* Style any image placed inside the featured-image container to fill the
+   space while maintaining aspect ratio. Using contain prevents
+   cropping and ensures the image isn't overly zoomed in. */
+.featured-image img {
+    /* Allow the featured image to scale down within the container while
+       preserving its aspect ratio. Using max-* ensures the image never
+       overflows the padded area. */
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+}
+
+/* Reuse the category badge styling from game cards */
+.featured-image .category {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--yellow);
+    color: var(--black);
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 4px;
+    border: var(--border-width) solid var(--black);
+    text-transform: uppercase;
+}
+
+.featured-content {
+    padding: 1.5rem;
+}
+
+.featured-content h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.featured-content p {
+    color: #555;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+/* Container for View All Games button under featured section */
+.view-all {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+/* Actions for game cards and featured card */
+.game-actions {
+    margin-top: 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: space-between;
+}
+
+/* Make action buttons take equal width and center text */
+.game-actions .btn {
+    flex: 1;
+    text-align: center;
+}
+
+/* Smaller buttons for card actions */
+.small-btn {
+    padding: 0.5rem 0;
+    font-size: 0.8rem;
+    border-radius: 8px;
+}
