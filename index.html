@@ -1,303 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>yojo.games</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #111;
-            color: #f1f1f1;
-            padding: 24px;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 48px;
-            max-width: 1000px;
-            margin-inline: auto;
-        }
-
-        .logo {
-            font-weight: bold;
-            font-size: 1.4rem;
-        }
-
-        .about-section,
-        .downloads-section,
-        .games-section,
-        .dream-game-section {
-            max-width: 1000px;
-            margin-inline: auto;
-            margin-bottom: 48px;
-        }
-
-        .about-text {
-            font-size: 1.05rem;
-            line-height: 1.6;
-            color: #ccc;
-            margin-bottom: 12px;
-        }
-
-        .small-tagline {
-            font-size: 1.4rem;
-            font-weight: 400;
-            color: #888;
-            margin-top: 12px;
-        }
-
-        .downloads-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            flex-wrap: wrap;
-            gap: 24px;
-        }
-
-        .downloads {
-            font-size: 2rem;
-            font-weight: 600;
-        }
-
-        .subtext {
-            color: #ccc;
-            margin-bottom: 8px;
-        }
-
-        .stat {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.95rem;
-            color: #aaa;
-        }
-
-        .stat-icon {
-            background-color: #333;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .cta-button {
-            padding: 12px 20px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #fff;
-            background: linear-gradient(135deg, #37b037, #2E8B57);
-            border: none;
-            border-radius: 12px;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-            box-shadow: 0 4px 12px rgba(0, 255, 150, 0.2);
-        }
-
-        .cta-button:hover {
-            background: linear-gradient(135deg, #2E8B57, #4CAF50);
-            transform: scale(1.05);
-            box-shadow: 0 6px 16px rgba(0, 255, 150, 0.3);
-        }
-
-        .games-title {
-            font-size: 1.6rem;
-            font-weight: 500;
-            margin-bottom: 24px;
-        }
-
-        .game-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 24px;
-            justify-items: center;
-        }
-
-        .game-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: inherit;
-            width: 100%;
-            max-width: 140px;
-        }
-
-        .game-icon {
-            width: 100%;
-            max-width: 100px;
-            height: 100px;
-            object-fit: contain;
-            border-radius: 16px;
-            background-color: #1a1a1a;
-            padding: 12px;
-            transition: transform 0.2s ease;
-        }
-
-        .game-icon:hover {
-            transform: scale(1.05);
-        }
-
-        .game-name {
-            margin-top: 8px;
-            font-size: 0.85rem;
-            color: #ccc;
-            text-align: center;
-        }
-
-        .dream-game-section {
-            text-align: center;
-            padding: 40px 20px;
-            background-color: #1a1a1a;
-            border-radius: 16px;
-        }
-
-        .dream-title {
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: #f1f1f1;
-        }
-
-        .dream-subtext {
-            font-size: 1rem;
-            color: #ccc;
-            margin-bottom: 24px;
-            line-height: 1.6;
-        }
-
-        .footer {
-            text-align: right;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #333;
-            max-width: 1000px;
-            margin-inline: auto;
-        }
-
-        .privacy-link {
-            font-size: 0.9rem;
-            color: #888;
-            text-decoration: none;
-        }
-
-        .privacy-link:hover {
-            color: #fff;
-            text-decoration: underline;
-        }
-
-        @media (max-width: 600px) {
-            .downloads {
-                font-size: 1.5rem;
-            }
-
-            .small-tagline {
-                font-size: 1.2rem;
-            }
-
-            .dream-title {
-                font-size: 1.4rem;
-            }
-
-            .dream-subtext {
-                font-size: 0.95rem;
-            }
-
-            .game-icon {
-                max-width: 80px;
-                height: 80px;
-            }
-
-            .game-name {
-                font-size: 0.75rem;
-            }
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yojo Games – Fun Without Limits</title>
+    <!-- Import fonts similar to Staple Games' clean look -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-    <header>
-        <div class="logo">yojo.games</div>
+    <!-- Sticky navigation bar -->
+    <header class="navbar">
+        <div class="container">
+            <div class="logo">yojo.games</div>
+            <nav class="nav-links">
+                <a href="#games">Games</a>
+                <a href="#publish">Publish</a>
+                <a href="#about">About</a>
+                <a href="mailto:help@yojo.games">Contact</a>
+            </nav>
+            <!-- Hamburger menu for small screens -->
+            <button class="menu-toggle" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
     </header>
 
-    <main>
-        <section class="about-section">
-            <p class="about-text">
-                We create quirky, imaginative, and addictive games that bring players into a fun-filled universe.
-                Whether you're here for a quick escape or a full-on adventure, Yojo's got a game for you.
+    <!-- Hero section introducing the studio -->
+    <section class="hero" id="about">
+        <div class="container">
+            <h1>Quirky. Imaginative. Addictive.</h1>
+            <p>
+                Rediscover fun through our unique and captivating games. Whether you’re here for a quick escape
+                or a full‑on adventure, Yojo’s got a game for you.
             </p>
-            <div class="tagline small-tagline">Fun shouldn’t make sense — and that’s the point.</div>
-        </section>
+            <div class="hero-buttons">
+                <!-- Call‑to‑action buttons styled like Staple Games -->
+                <!-- <a href="#games" class="btn primary-btn">Play on iOS</a> -->
+                <a href="https://play.google.com/store/apps/dev?id=6918480463564567915" class="btn primary-btn">Play on Android</a>
+            </div>
+        </div>
+    </section>
 
-        <div class="downloads-section">
-            <div>
-                <div class="downloads">3,00,00+</div>
-                <div class="subtext">Total Downloads</div>
-                <div class="stat">
-                    <div class="stat-icon">👤</div>
-                    <span>All on 90,000+ Active Devices</span>
+
+    <!-- Fun statistics section -->
+    <section class="stats">
+        <div class="container">
+            <div class="stat">
+                <h2>210K+</h2>
+                <p>Total Downloads</p>
+            </div>
+            <div class="stat">
+                <h2>55K+</h2>
+                <p>Active Devices</p>
+            </div>
+            <div class="stat">
+                <h2>100%</h2>
+                <p>Fun Guarantee</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Game section -->
+    <section class="featured-section">
+        <div class="container">
+            <h2>Featured Game</h2>
+            <div class="featured-card">
+                <div class="featured-image puzzle">
+                    <!-- Display the same image used in the first game card to showcase the featured game. 
+                         The image is contained to avoid cropping and excessive zoom. -->
+                    <img src="games_images/game1.png" alt="Brainrot Merge">
+                    <span class="category">Puzzle</span>
+                </div>
+                <div class="featured-content">
+                    <h3>Italian Meme Game : Merge Dro</h3>
+                    <p>Our most popular meme drop puzzle game that keeps you hooked for hours. Merge memes, unlock surprises and challenge your brain in the most entertaining way possible.</p>
+                    <div class="game-actions">
+                        <!-- <a href="#" class="btn small-btn primary-btn">Play on iOS</a> -->
+                        <a href="#" class="btn small-btn primary-btn">Play on Android</a>
+                    </div>
                 </div>
             </div>
-            <a href="publish.html" class="cta-button">Publish Your Game With Us</a>
-        </div>
-
-        <div class="games-section">
-            <div class="games-title">Our Games</div>
-            <div class="game-grid">
-                <a href="https://play.google.com/store/apps/details?id=com.yojogames.ItalianBrainrotMerge"
-                    class="game-card" target="_blank">
-                    <img src="game_images/unnamed (1).webp" alt="Brainrot Merge : Meme Drop" class="game-icon" />
-                    <p class="game-name">Brainrot Merge : Meme Drop</p>
-                </a>
-                <a href="https://play.google.com/store/apps/details?id=com.aadityabhoyarr.linzo" class="game-card"
-                    target="_blank">
-                    <img src="game_images/unnamed (3).webp" alt="Linzo" class="game-icon" />
-                    <p class="game-name">Linzo</p>
-                </a>
-                <a href="https://play.google.com/store/apps/details?id=com.adityabhoyar.neosadventure" class="game-card"
-                    target="_blank">
-                    <img src="game_images/unnamed.webp" alt="Neo's Adventure : Puzzle Game" class="game-icon" />
-                    <p class="game-name">Neo's Adventure : Puzzle Game</p>
-                </a>
-                <a href="https://play.google.com/store/apps/details?id=com.yojogames.BrainrotMerge" class="game-card"
-                    target="_blank">
-                    <img src="game_images/unnamed (2).webp" alt="Brainrot Merge : Tung Tung" class="game-icon" />
-                    <p class="game-name">Brainrot Merge : Tung Tung</p>
-                </a>
+            <!-- View all games button -->
+            <div class="view-all">
+                <a href="#games" class="btn primary-btn">View All Games</a>
             </div>
         </div>
+    </section>
 
-        <div class="dream-game-section">
-            <h2 class="dream-title">Create Your Dream Game Now</h2>
-            <p class="dream-subtext">
-                This is how it works — we create your dream game, you pay for the development, and keep 100% of your
-                revenue.
-                <br><br>
-                We can also publish it under our Google Developer account for a small one-time publishing fee and
-                monthly
+
+
+    <!-- Section for prospective developers/publishers -->
+    <section id="publish" class="publish-section">
+        <div class="container">
+            <!-- Renamed section to emphasise publishing partnership -->
+            <h2>Publish With Us</h2>
+            <p>
+                We can also publish it under our Google Developer account for a small one‑time publishing fee and monthly
                 maintenance fee (as per your plan).
-                <br><br>
-                help@yojo.games
             </p>
-            <a href="mailto:help@yojo.games" class="cta-button">Contact Now Through Email</a>
+            <!-- <p class="small">
+                We can also publish it under our Google Developer account for a small one‑time publishing fee and monthly
+                maintenance fee (as per your plan).
+            </p> -->
+            <!-- Button updated to encourage publishing inquiries -->
+            <a href="/publish.html" class="btn primary-btn">Publish With Us</a>
         </div>
-    </main>
+    </section>
 
-    <footer class="footer">
-        <a href="https://www.yojo.games/Privacy-policy-/" class="privacy-link" target="_blank">Privacy Policy</a>
+    <!-- Our Games catalogue with category filters -->
+    <section id="games" class="games-section">
+        <div class="container">
+            <h2>Our Games</h2>
+            <p>Choose your adventure from our collection</p>
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="puzzle">Puzzle</button>
+                <button class="filter-btn" data-filter="casual">Casual</button>
+               <!-- <button class="filter-btn" data-filter="strategy">Strategy</button> -->
+            </div>
+            <div class="games-grid">
+                <div class="game-card" data-category="puzzle">
+                    <!-- Move the image inside the game-image container so it fills the space correctly -->
+                    <div class="game-image puzzle">
+                        <img src="games_images/game1.png" alt="Italian Meme Game">
+                        <span class="category">Puzzle</span>
+                    </div>
+                    <div class="game-content">
+                        <h3>Italian Meme Game : Merge Drop</h3>
+                        <p></p>
+                        <div class="game-actions">
+                            <!-- <a href="#" class="btn small-btn primary-btn">Play on iOS</a> -->
+                            <a href="https://play.google.com/store/apps/details?id=com.yojogames.BrainrotMerge" class="btn small-btn primary-btn">Play on Android</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="game-card" data-category="casual">
+                    <div class="game-image casual">
+                        <img src="games_images/game2.png" alt="Italian Meme Game">
+                        <span class="category">Casual</span>
+                    </div>
+                    <div class="game-content">
+                        <h3>Linzo</h3>
+                        <p> . </p>
+                        <div class="game-actions">
+                            <!-- <a href="#" class="btn small-btn primary-btn">Play on iOS</a> -->
+                            <a href="https://play.google.com/store/apps/details?id=com.aadityabhoyarr.linzo" class="btn small-btn primary-btn">Play on Android</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="game-card" data-category="puzzle">
+                    <div class="game-image puzzle">
+                         <img src="games_images/game3.png" alt="Italian Meme Game">
+                        <span class="category">Puzzle</span>
+                       
+                    </div>
+                    <div class="game-content">
+                        <h3>Neo's Adventure : Puzzle Game</h3>
+                        <p></p>
+                        <div class="game-actions">
+                            <!-- <a href="#" class="btn small-btn primary-btn">Play on iOS</a> -->
+                            <a href="https://play.google.com/store/apps/details?id=com.adityabhoyar.neosadventure" class="btn small-btn primary-btn">Play on Android</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="game-card" data-category="puzzle">
+                    <div class="game-image puzzle">
+                         <img src="games_images/game4.png" alt="Italian Meme Game">
+                        <span class="category">Puzzle</span>
+                    </div>
+                    <div class="game-content">
+                        <h3>Hexa Merge Puzzle 2048</h3>
+                        <p></p>
+                        <div class="game-actions">
+                            <!-- <a href="#" class="btn small-btn primary-btn">Play on iOS</a> -->
+                            <a href="https://play.google.com/store/apps/details?id=come.yojogames.HexaMergePuzzle2048" class="btn small-btn primary-btn">Play on Android</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer with basic information -->
+    <footer id="contact" class="footer">
+        <div class="container">
+            <div class="footer-brand">
+                <h3>yojo.games</h3>
+                <p>Fun shouldn’t make sense — and that’s the point.</p>
+            </div>
+            <div class="footer-links">
+                <a href="/Privacy-policy.html">Privacy Policy</a>
+                <!-- <a href="#">Terms of Service</a> -->
+                <a href="https://forms.gle/VS8EDM4i4bdjeTKY6">Support</a>
+                <!-- Added a contact link in the footer for easy access -->
+                <a href="mailto:help@yojo.games">Contact Us</a>
+            </div>
+            <p class="copyright">&copy; 2025 Yojo Games. All rights reserved.</p>
+        </div>
     </footer>
-</body>
 
+    <script src="script.js"></script>
+</body>
 </html>
