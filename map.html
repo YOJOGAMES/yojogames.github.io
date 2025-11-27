@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOJO.GAMES Global Map</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #ffffff; font-family: 'Poppins', sans-serif; }
+        #canvas-container { width: 100vw; height: 100vh; }
+        #ui {
+            position: absolute; top: 30px; left: 30px; background: #ffffff;
+            padding: 20px 25px; border: 3px solid #000000; border-radius: 12px;
+            box-shadow: 5px 5px 0px #000000; pointer-events: none; user-select: none;
+            min-width: 200px; z-index: 10;
+        }
+        h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: #000; letter-spacing: -0.5px; }
+        p { margin: 5px 0 0 0; font-size: 0.9rem; font-weight: 600; color: #666; }
+        .badge { display: inline-block; background: #ffd700; color: #000; font-weight: 700; padding: 2px 8px; border: 2px solid #000; border-radius: 6px; margin-left: 10px; }
+        #loading {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #ffd700; color: #000; padding: 15px 30px; border: 3px solid #000;
+            border-radius: 50px; font-weight: 700; box-shadow: 4px 4px 0px #000;
+            transition: opacity 0.5s; z-index: 20;
+        }
+        .last-updated { font-size: 0.75rem; color: #888; margin-top: 8px; font-weight: 600; }
+        .static-note { font-size: 0.65rem; color: #bbb; margin-top: 2px; font-style: italic; }
+        
+        #tooltip {
+            position: absolute; background: #ffffff; border: 2px solid #000000;
+            border-radius: 8px; padding: 8px 12px; box-shadow: 4px 4px 0px #000000;
+            pointer-events: none; display: none; z-index: 100;
+            transform: translate(-50%, -120%); white-space: nowrap; text-align: center;
+            display: flex; align-items: center; gap: 8px;
+        }
+        #tooltip .flag-img { width: 24px; height: auto; border-radius: 2px; border: 1px solid #ddd; display: inline-block; }
+        #tooltip .location-text { font-weight: 700; color: #000; font-size: 0.85rem; text-transform: capitalize; }
+
+        #fps-counter {
+            position: absolute; bottom: 5px; right: 10px;
+            color: #ccc; font-family: monospace; font-size: 10px;
+            pointer-events: none; user-select: none; z-index: 5;
+        }
+    </style>
+</head>
+<body>
+    <div id="ui">
+        <h1>yojo.games</h1>
+        <p>Global Installs <span class="badge" id="count">0</span></p>
+        <div id="last-update" class="last-updated">Initializing...</div>
+        <div class="static-note">(Data from 27 November 2025)</div>
+    </div>
+    
+    <div id="tooltip">
+        <img class="flag-img" src="" alt="">
+        <span class="location-text">City, Country</span>
+    </div>
+
+    <div id="fps-counter">FPS: 60</div>
+    <div id="loading">OPTIMIZING GPU...</div>
+    <div id="canvas-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        // --- CONFIGURATION ---
+        const DATA_URL = "https://yojo-map-proxy.adityabhoyar-main.workers.dev/";
+        const BACKUP_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZvuXxpEIKb5aTrFcX_ARIwoGIvXP10Lw7fJ1itXXobvlGRIytMsCY7mSoz9hEOmxQ5lewS4MPFI6Y/pub?output=csv";
+        const REFRESH_RATE = 60000; 
+        const MAX_INSTANCES = 100000; 
+
+        // --- FALLBACK DATA ---
+        const fallbackData = [
+            { city: "New York", country: "United States", lat: 40.7128, lon: -74.0060 },
+            { city: "London", country: "United Kingdom", lat: 51.5074, lon: -0.1278 },
+            { city: "Tokyo", country: "Japan", lat: 35.6895, lon: 139.6917 },
+            { city: "Sydney", country: "Australia", lat: -33.8688, lon: 151.2093 },
+            { city: "Rio de Janeiro", country: "Brazil", lat: -22.9068, lon: -43.1729 },
+            { city: "Cape Town", country: "South Africa", lat: -33.9249, lon: 18.4241 },
+            { city: "Mumbai", country: "India", lat: 19.0760, lon: 72.8777 },
+            { city: "Paris", country: "France", lat: 48.8566, lon: 2.3522 },
+            { city: "Singapore", country: "Singapore", lat: 1.3521, lon: 103.8198 },
+            { city: "Dubai", country: "UAE", lat: 25.2048, lon: 55.2708 },
+            { city: "Berlin", country: "Germany", lat: 52.5200, lon: 13.4050 },
+            { city: "Seoul", country: "South Korea", lat: 37.5665, lon: 126.9780 }
+        ];
+
+        // 1. Setup
+        const container = document.getElementById('canvas-container');
+        const loading = document.getElementById('loading');
+        const countSpan = document.getElementById('count');
+        const lastUpdateSpan = document.getElementById('last-update'); 
+        const tooltip = document.getElementById('tooltip');
+        const tooltipFlagImg = tooltip.querySelector('.flag-img');
+        const tooltipText = tooltip.querySelector('.location-text');
+        const fpsCounter = document.getElementById('fps-counter');
+
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0xffffff, 0.002);
+        
+        // Starfield
+        const starGeo = new THREE.BufferGeometry();
+        const starCount = 5000;
+        const starPos = new Float32Array(starCount * 3);
+        for(let i=0; i<starCount*3; i++) starPos[i] = (Math.random()-0.5) * 160; 
+        starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+        const circleSprite = (() => {
+            const canvas = document.createElement('canvas'); canvas.width = 32; canvas.height = 32;
+            const ctx = canvas.getContext('2d'); ctx.beginPath(); ctx.arc(16, 16, 14, 0, 2 * Math.PI);
+            ctx.fillStyle = 'white'; ctx.fill(); return new THREE.CanvasTexture(canvas);
+        })();
+        const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({
+            color: 0x000000, size: 0.35, map: circleSprite, transparent: true, opacity: 1.0, alphaTest: 0.5 
+        }));
+        scene.add(stars);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 4.2; 
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        // Controls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.rotateSpeed = 0.5;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.5;
+        controls.enablePan = false; 
+        controls.minDistance = 1.5;
+        controls.maxDistance = 10;
+
+        const earthGroup = new THREE.Group();
+        earthGroup.scale.set(0,0,0); 
+        scene.add(earthGroup);
+
+        // 2. Earth & Shader
+        const loader = new THREE.TextureLoader();
+        const earthMask = loader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_specular_2048.jpg', () => {
+            initData(); loading.style.opacity = '0';
+            let s = 0;
+            const grow = setInterval(() => {
+                s += 0.02;
+                if(s >= 1) { s = 1; clearInterval(grow); }
+                earthGroup.scale.set(s,s,s);
+            }, 16);
+        });
+
+        const earth = new THREE.Mesh(
+            new THREE.SphereGeometry(1, 128, 128),
+            new THREE.ShaderMaterial({
+                uniforms: { map: { value: earthMask } },
+                vertexShader: `varying vec2 vUv; varying vec3 vNormal; void main() { vUv = uv; vNormal = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+                fragmentShader: `
+                    uniform sampler2D map; varying vec2 vUv; varying vec3 vNormal;
+                    void main() {
+                        float land = 1.0 - texture2D(map, vUv).r; 
+                        float d = distance(fract(vUv * 250.0), vec2(0.5));
+                        float dots = 1.0 - smoothstep(0.25, 0.3, d);
+                        vec3 c = mix(vec3(0.62, 0.42, 0.83), vec3(0.0), dots * smoothstep(0.5, 0.6, land));
+                        c *= (0.8 + 0.2 * max(dot(normalize(vNormal), vec3(1.0)), 0.0));
+                        gl_FragColor = vec4(c, 1.0);
+                    }
+                `,
+                transparent: true
+            })
+        );
+        earthGroup.add(earth);
+        earthGroup.add(new THREE.Mesh(new THREE.SphereGeometry(1.008, 128, 128), new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide })));
+
+        // 3. GPU Instancing
+        const lasersGroup = new THREE.Group();
+        earthGroup.add(lasersGroup);
+
+        const laserGeo = new THREE.CylinderGeometry(0.003, 0.003, 1.5, 3);
+        laserGeo.translate(0, 0.75, 0); laserGeo.rotateX(Math.PI / 2);
+        
+        const dotGeo = new THREE.IcosahedronGeometry(0.008, 0);
+        const hitGeo = new THREE.SphereGeometry(0.05, 4, 4);
+
+        const laserMat = new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true, opacity: 1.0, blending: THREE.NormalBlending });
+        const dotMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        
+        // --- CRITICAL FIX: Make hitMesh "visible" to raycaster (opacity 0) ---
+        const hitMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthWrite: false });
+
+        const laserMesh = new THREE.InstancedMesh(laserGeo, laserMat, MAX_INSTANCES);
+        const dotMesh = new THREE.InstancedMesh(dotGeo, dotMat, MAX_INSTANCES);
+        const hitMesh = new THREE.InstancedMesh(hitGeo, hitMat, MAX_INSTANCES);
+
+        lasersGroup.add(laserMesh);
+        lasersGroup.add(dotMesh);
+        lasersGroup.add(hitMesh);
+
+        const dummy = new THREE.Object3D();
+        let activeData = [];
+
+        function latLonToVector3(lat, lon, radius) {
+            const phi = (90 - lat) * (Math.PI / 180);
+            const theta = (lon + 180) * (Math.PI / 180);
+            return new THREE.Vector3(-(radius) * Math.sin(phi) * Math.cos(theta), (radius) * Math.cos(phi), (radius) * Math.sin(phi) * Math.sin(theta));
+        }
+
+        function getCountryCode(c) {
+            if(!c || c === "Unknown") return null;
+            const map = {
+                'United States':'us', 'USA':'us', 'United Kingdom':'gb', 'UK':'gb', 'Great Britain':'gb',
+                'India':'in', 'Russia':'ru', 'Russian Federation':'ru', 'South Korea':'kr', 'Korea, Republic of':'kr',
+                'Republic of Korea':'kr', 'China':'cn', 'Brazil':'br', 'Germany':'de', 'France':'fr', 'Italy':'it',
+                'Canada':'ca', 'Australia':'au', 'Vietnam':'vn', 'Indonesia':'id', 'Malaysia':'my', 'Thailand':'th',
+                'Philippines':'ph', 'Singapore':'sg', 'Mexico':'mx', 'Argentina':'ar', 'Chile':'cl', 'Colombia':'co',
+                'Peru':'pe', 'Georgia':'ge', 'Kazakhstan':'kz', 'Ukraine':'ua', 'Belarus':'by', 'Poland':'pl',
+                'Netherlands':'nl', 'Spain':'es', 'Sweden':'se', 'Norway':'no', 'Algeria':'dz', 'Egypt':'eg',
+                'South Africa':'za', 'Nigeria':'ng', 'Morocco':'ma', 'Pakistan':'pk', 'Bangladesh':'bd', 'Sri Lanka':'lk',
+                'Nepal':'np', 'Serbia':'rs', 'Romania':'ro', 'Turkey':'tr', 'Saudi Arabia':'sa', 'UAE':'ae',
+                'United Arab Emirates':'ae', 'Israel':'il', 'Iran':'ir', 'Iraq':'iq', 'Japan':'jp', 'Finland':'fi',
+                'El Salvador':'sv', 'Guatemala':'gt', 'Bolivia':'bo', 'Paraguay':'py', 'Uruguay':'uy', 'Venezuela':'ve',
+                'Portugal':'pt', 'Belgium':'be', 'Switzerland':'ch', 'Austria':'at', 'Greece':'gr', 'Czechia':'cz',
+                'Czech Republic':'cz', 'Hungary':'hu', 'Ireland':'ie', 'Denmark':'dk', 'New Zealand':'nz'
+            };
+            let code = map[c];
+            if(!code && c.length === 2) code = c.toLowerCase();
+            return code;
+        }
+
+        function updateMap(nodeList) {
+            const count = Math.min(nodeList.length, MAX_INSTANCES);
+            activeData = nodeList.slice(0, count);
+            
+            laserMesh.count = count;
+            dotMesh.count = count;
+            hitMesh.count = count;
+
+            for (let i = 0; i < count; i++) {
+                const node = nodeList[i];
+                const pos = latLonToVector3(node.lat, node.lon, 1.0);
+                dummy.position.copy(pos);
+                dummy.lookAt(pos.clone().multiplyScalar(2.0));
+                dummy.updateMatrix();
+                laserMesh.setMatrixAt(i, dummy.matrix);
+                dotMesh.setMatrixAt(i, dummy.matrix);
+                hitMesh.setMatrixAt(i, dummy.matrix);
+            }
+
+            laserMesh.instanceMatrix.needsUpdate = true;
+            dotMesh.instanceMatrix.needsUpdate = true;
+            hitMesh.instanceMatrix.needsUpdate = true;
+            
+            countSpan.textContent = count.toLocaleString();
+            lastUpdateSpan.textContent = "Synced: " + new Date().toLocaleTimeString();
+            lastUpdateSpan.style.color = "#888"; 
+        }
+
+        function parseCSVLine(str) {
+            const arr = []; let quote = false; let col = '';
+            for (let c of str) { if (c === '"') { quote = !quote; continue; } if (c === ',' && !quote) { arr.push(col); col = ''; continue; } col += c; }
+            arr.push(col); return arr;
+        }
+
+        async function fetchCityData() {
+            try {
+                const url = DATA_URL.includes('google') ? DATA_URL + "&t=" + Date.now() : DATA_URL;
+                const response = await fetch(url);
+                const text = await response.text();
+                const lines = text.split('\n');
+                const nodes = [];
+                const uniqueUIDs = new Set();
+
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim(); if (!line) continue;
+                    const cols = parseCSVLine(line);
+                    if (cols.length >= 11) {
+                        const country = cols[2]; 
+                        let city = cols[4];
+                        const uid = cols[10];
+                        const lat = parseFloat(cols[6]);
+                        const lon = parseFloat(cols[7]);
+                        if (!city || city === "Unknown") city = "";
+                        if (!isNaN(lat) && !isNaN(lon) && lat !== 0 && lon !== 0) {
+                            if (!uniqueUIDs.has(uid)) {
+                                uniqueUIDs.add(uid);
+                                nodes.push({ lat, lon, country, city });
+                            }
+                        }
+                    }
+                }
+                if (nodes.length > 0) updateMap(nodes);
+            } catch (error) { 
+                console.warn("Primary fetch failed, trying backup...", error);
+                try {
+                    const backupUrl = BACKUP_URL + "&t=" + Date.now();
+                    const response2 = await fetch(backupUrl);
+                    if (!response2.ok) throw new Error("Backup fetch failed");
+                    const text2 = await response2.text();
+                    
+                    // Duplicate Parsing Logic for Backup
+                    const lines = text2.split('\n');
+                    const nodes = [];
+                    const uniqueUIDs = new Set();
+                    for (let i = 1; i < lines.length; i++) {
+                        const line = lines[i].trim(); if (!line) continue;
+                        const cols = parseCSVLine(line);
+                        if (cols.length >= 11) {
+                            const country = cols[2]; let city = cols[4]; const uid = cols[10];
+                            const lat = parseFloat(cols[6]); const lon = parseFloat(cols[7]);
+                            if (!city || city === "Unknown") city = "";
+                            if (!isNaN(lat) && !isNaN(lon) && lat !== 0 && lon !== 0) {
+                                if (!uniqueUIDs.has(uid)) { uniqueUIDs.add(uid); nodes.push({ lat, lon, country, city }); }
+                            }
+                        }
+                    }
+                    if(nodes.length > 0) updateMap(nodes);
+                } catch (err2) {
+                    console.error("All sources failed. Using demo data.");
+                    updateMap(fallbackData);
+                    lastUpdateSpan.textContent = "Offline Mode";
+                    lastUpdateSpan.style.color = "orange";
+                }
+            }
+        }
+
+        function initData() { fetchCityData(); setInterval(fetchCityData, REFRESH_RATE); }
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        window.addEventListener('mousemove', (e) => {
+            const cx = e.clientX;
+            const cy = e.clientY;
+            mouse.x = (cx / window.innerWidth) * 2 - 1;
+            mouse.y = -(cy / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            
+            const intersects = raycaster.intersectObject(hitMesh);
+            
+            if (intersects.length > 0) {
+                controls.autoRotate = false;
+                const id = intersects[0].instanceId;
+                const data = activeData[id];
+                if (data) {
+                    const countryCode = getCountryCode(data.country);
+                    if (countryCode) {
+                        tooltipFlagImg.src = `https://flagcdn.com/w40/${countryCode}.png`;
+                        tooltipFlagImg.style.display = "inline-block";
+                    } else {
+                        tooltipFlagImg.style.display = "none";
+                    }
+                    tooltipText.textContent = data.city ? `${data.city}, ${data.country}` : data.country;
+                    tooltip.style.left = cx + 'px';
+                    tooltip.style.top = (cy - 15) + 'px';
+                    tooltip.style.display = 'flex'; 
+                    document.body.style.cursor = 'pointer';
+                    return;
+                }
+            } else {
+                controls.autoRotate = true;
+            }
+            tooltip.style.display = 'none';
+            document.body.style.cursor = 'default';
+        });
+
+        window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
+
+        let lastTime = performance.now();
+        let frameCount = 0;
+        function animate() {
+            requestAnimationFrame(animate);
+            const now = performance.now();
+            frameCount++;
+            if (now - lastTime >= 1000) {
+                fpsCounter.textContent = "FPS: " + frameCount;
+                frameCount = 0;
+                lastTime = now;
+            }
+            controls.update();
+            stars.rotation.y -= 0.0002;
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>
