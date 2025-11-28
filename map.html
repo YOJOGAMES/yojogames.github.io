@@ -68,23 +68,7 @@
         const DATA_URL = "https://yojo-map-proxy.adityabhoyar-main.workers.dev/";
         const BACKUP_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZvuXxpEIKb5aTrFcX_ARIwoGIvXP10Lw7fJ1itXXobvlGRIytMsCY7mSoz9hEOmxQ5lewS4MPFI6Y/pub?output=csv";
         const REFRESH_RATE = 60000; 
-        const MAX_INSTANCES = 100000; 
-
-        // --- FALLBACK DATA ---
-        const fallbackData = [
-            { city: "New York", country: "United States", lat: 40.7128, lon: -74.0060 },
-            { city: "London", country: "United Kingdom", lat: 51.5074, lon: -0.1278 },
-            { city: "Tokyo", country: "Japan", lat: 35.6895, lon: 139.6917 },
-            { city: "Sydney", country: "Australia", lat: -33.8688, lon: 151.2093 },
-            { city: "Rio de Janeiro", country: "Brazil", lat: -22.9068, lon: -43.1729 },
-            { city: "Cape Town", country: "South Africa", lat: -33.9249, lon: 18.4241 },
-            { city: "Mumbai", country: "India", lat: 19.0760, lon: 72.8777 },
-            { city: "Paris", country: "France", lat: 48.8566, lon: 2.3522 },
-            { city: "Singapore", country: "Singapore", lat: 1.3521, lon: 103.8198 },
-            { city: "Dubai", country: "UAE", lat: 25.2048, lon: 55.2708 },
-            { city: "Berlin", country: "Germany", lat: 52.5200, lon: 13.4050 },
-            { city: "Seoul", country: "South Korea", lat: 37.5665, lon: 126.9780 }
-        ];
+        const MAX_INSTANCES = 100000;
 
         // 1. Setup
         const container = document.getElementById('canvas-container');
@@ -176,10 +160,18 @@
         const lasersGroup = new THREE.Group();
         earthGroup.add(lasersGroup);
 
-        const laserGeo = new THREE.CylinderGeometry(0.003, 0.003, 1.5, 3);
-        laserGeo.translate(0, 0.75, 0); laserGeo.rotateX(Math.PI / 2);
+        // --- UPDATED LASER SIZE ---
+        // Height 0.15, thickness increased to 0.004
+        const laserGeo = new THREE.CylinderGeometry(0.004, 0.004, 0.15, 3);
+        // Translate Y is exactly half of the height (0.15 / 2 = 0.075) so it pivots from the base
+        laserGeo.translate(0, 0.075, 0); 
+        laserGeo.rotateX(Math.PI / 2);
         
-        const dotGeo = new THREE.IcosahedronGeometry(0.008, 0);
+        // Adjust dot size to match thicker laser
+        const dotGeo = new THREE.IcosahedronGeometry(0.007, 0);
+        dotGeo.translate(0, 0.15, 0); // Move dot to the top of the laser
+        dotGeo.rotateX(Math.PI / 2); // Rotate to match laser orientation
+
         const hitGeo = new THREE.SphereGeometry(0.05, 4, 4);
 
         const laserMat = new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true, opacity: 1.0, blending: THREE.NormalBlending });
@@ -198,6 +190,7 @@
 
         const dummy = new THREE.Object3D();
         let activeData = [];
+        let cityCounts = {}; // Store player counts per city
 
         function latLonToVector3(lat, lon, radius) {
             const phi = (90 - lat) * (Math.PI / 180);
@@ -231,6 +224,14 @@
             const count = Math.min(nodeList.length, MAX_INSTANCES);
             activeData = nodeList.slice(0, count);
             
+            // Calculate player counts per city
+            cityCounts = {};
+            for (const node of activeData) {
+                // Create a unique key for City+Country
+                const key = (node.city || "") + "|" + (node.country || "");
+                cityCounts[key] = (cityCounts[key] || 0) + 1;
+            }
+
             laserMesh.count = count;
             dotMesh.count = count;
             hitMesh.count = count;
@@ -342,17 +343,33 @@
                 const id = intersects[0].instanceId;
                 const data = activeData[id];
                 if (data) {
+                    // Get Country Code
                     const countryCode = getCountryCode(data.country);
+                    
+                    // Get Player Count for this location
+                    const key = (data.city || "") + "|" + (data.country || "");
+                    const playerCount = cityCounts[key] || 1;
+
+                    // Build Tooltip HTML dynamically
+                    let flagHtml = '';
                     if (countryCode) {
-                        tooltipFlagImg.src = `https://flagcdn.com/w40/${countryCode}.png`;
-                        tooltipFlagImg.style.display = "inline-block";
-                    } else {
-                        tooltipFlagImg.style.display = "none";
+                        flagHtml = `<img src="https://flagcdn.com/w40/${countryCode}.png" style="width: 24px; height: auto; border-radius: 2px; border: 1px solid #ddd; display: block;">`;
                     }
-                    tooltipText.textContent = data.city ? `${data.city}, ${data.country}` : data.country;
+
+                    const locationName = data.city ? `${data.city}, ${data.country}` : data.country;
+
+                    tooltip.innerHTML = `
+                        ${flagHtml}
+                        <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                            <span style="font-weight: 800; color: #000; font-size: 0.85rem; line-height: 1.2;">${locationName}</span>
+                            <span style="font-size: 0.75rem; color: #555; font-weight: 600;">Players: ${playerCount}</span>
+                        </div>
+                    `;
+                    
                     tooltip.style.left = cx + 'px';
                     tooltip.style.top = (cy - 15) + 'px';
                     tooltip.style.display = 'flex'; 
+                    tooltip.style.gap = '10px';
                     document.body.style.cursor = 'pointer';
                     return;
                 }
